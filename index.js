@@ -1,32 +1,28 @@
+var config = require('./config');
 var fs = require('fs');
 var helpers = require('./helpers');
 var spawn = require('child_process').spawn;
 
-var keyboardId = 12;            // xinput device
-var tempLog = [];               // temporary storage
-var logFile = './keylog.json';  // keylog file
+var keyboardId = config.device;            // xinput device
+var logfile = config.logfile;  // keylog file
 
 // makes sure keylog.json exists
-fs.open(logFile, 'wx', function(err, fd) {
-    fs.writeFile(logFile, JSON.stringify({}), (err) => {
-        fs.close(fd, function(closeErr) {
-            console.log(closeErr);
-        });
-    });
+fs.stat(logfile, function(err, stat) {
+    // if logfile does not exist
+    if (err && err.code == 'ENOENT') {
+        helpers.jsonSkeleton(logfile);
+    };
 });
 
 // spawn the xinput process
 xinput = spawn('xinput', ['test', keyboardId]);
 
-// write temporary log to permanent storage every 5 minutes
-setInterval(function() { helpers.writeLog(tempLog, logFile); }, 50);
-
 // on stdout
 xinput.stdout.on('data', (data) => {
     data = data.toString('utf8');
     if (data.indexOf("press") !== -1) {
-        tempLog.push(parseFloat(data.substring(data.length - 4, data.length - 2)));
-        console.log(tempLog);
+        helpers.writeLog(parseFloat(data.substring(data.length - 4, data.length - 2)), logfile);
+        console.log(data.substring(data.length - 4, data.length - 2));
     }
 });
 
