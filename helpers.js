@@ -7,7 +7,7 @@ module.exports = {
     // creates a skeleton JSON file with only {} in it
     jsonSkeleton: function(file) {
         var opened = fs.openSync(file, 'w');
-        jsonfile.writeFile(file, {}, {spaces: 4}, function(err) {
+        jsonfile.writeFile(file, {}, {spaces: 3}, function(err) {
             console.error(err);
         });
         fs.closeSync(opened);

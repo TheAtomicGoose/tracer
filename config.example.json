@@ -1,4 +1,5 @@
 {
     "device": 0,
-    "logfile": "./keylog.json"
+    "logfile": "./keylog.json",
+    "keymap": "./keymap.json"
 }
