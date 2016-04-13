@@ -43,7 +43,8 @@ function processKeymap(originalMap) {
         }
     });
 
-    var keymap = {};  // the json keymap object
+    var keymap = {};    // the json keymap object
+    var mods = {"control": [], "shift": [], "alt": [], "super": []};  // ctrl, shift, alt, super
 
     xmodmap.forEach(function(element, index, array) {
         
@@ -52,7 +53,7 @@ function processKeymap(originalMap) {
         /*
          * the lines are formatted like 'keycode # = ...', and the numbers are right-justified,
          * so the number can start anywhere from the 9th to 11th character, since they range from
-         * 0 to 255. The parseInt(number).toString() gets rid of the potential extra digits
+         * 0 to 255. The parseInt(number).toString() gets rid of the potential extra characters
          * that substring might capture (if it copies "  9" or " 40" rather than "102").
         */
         var key = parseInt(element.substring(8, equalIndex - 1)).toString();
@@ -66,10 +67,19 @@ function processKeymap(originalMap) {
         // the key modified by shift
         var shift = element.substring(0, element.indexOf(' '));
 
+        // if the current key is a modifier key, add it to mods
+        modifierAdd(noShift, key, mods);
+
+        // if the non-shift-modified key doesn't exist, skip this key
+        if (noShift === 'NoSymbol') {
+            return;
+        }
+
         value[0] = noShift;
 
-        // if the shift-modified key is an actual key, add it as the second element in value
-        if (shift !== 'NoSymbol' && shift !== noShift) {
+        // if the shift-modified key is an actual key and is not an alphabetic
+        // character, add it as the second element in value
+        if (shift !== 'NoSymbol' && shift !== noShift.toUpperCase()) {
             value[1] = shift;
         }
 
@@ -77,8 +87,33 @@ function processKeymap(originalMap) {
         keymap[key] = value;
     });
 
+    // make mods part of keymap
+    keymap.modifiers = mods;
+
     // write keymap to keymap json file
     jsonfile.writeFile(config.keymap, keymap, {spaces: 3}, function(err) {
         console.error(err);
+    });
+}
+
+/**
+ * modifierAdd() takes the textual value of a key, the keymap number of
+ * a key, and an object, and checks if any of the keys of the object (all
+ * of which are modifier keys) are contained in the textual value of the key
+ * passed in. If so, the keymap number of the key is added to the corresponding
+ * array in modObject.
+ */
+function modifierAdd(key, keyNum, modObject) {
+    
+    // gets all the possible modifiers
+    modifiers = Object.keys(modObject);
+    // check if key is any of those modifiers
+    modifiers.forEach(function(element, index, array) {
+        // if so, add the keyNum of the modifier to that modifier's
+        // array in the modifier object
+        if (key.toLowerCase().includes(element)) {
+            modObject[element].push(keyNum);
+            return;
+        }
     });
 }
