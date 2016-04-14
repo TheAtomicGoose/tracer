@@ -16,7 +16,7 @@ You also need to know the device id of your keyboard. You can find it by executi
 ## Installation
 
 1. Get a local copy of `tracer` with  `git clone git@github.com:TheAtomicGoose/tracer.git`, and move into the new directory with `cd tracer`.
-2. Copy the sample configuration file with `cp config.sample.json config.json`. Within `config.json`, change `device` to the device id you found earlier, and change the paths to the various files if you want them stored in a different place.
+2. Copy the sample configuration file with `cp config.sample.json config.json`. Within `config.json`, change `device` to the device id you found earlier, and change the paths to the various files if you want them stored in a different place. `interval` is the smallest interval of time you can analyze, in milliseconds. It's an hour by default - it's not recommended to make it below a minute.
 3. Run `node init.js` to generate your keymap file, and initialize a couple other things.
 
 ## Usage

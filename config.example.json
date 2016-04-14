@@ -1,5 +1,6 @@
 {
     "device": 0,
     "logfile": "./keylog.json",
-    "keymap": "./keymap.json"
+    "keymap": "./keymap.json",
+    "interval": 3600000
 }

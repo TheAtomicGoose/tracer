@@ -31,21 +31,36 @@ module.exports = {
         fs.closeSync(opened);
     },
 
-    // writes a keystroke to the log file as a value whose key is the current datetime.
-    // if the key was modified by any modifier keys, those are written with it.
-    writeLog: function(keyStroke, logfile, modifiers) {
-        var fullLog = require(logfile);
-        var key = {"key": keyStroke};
+    // writes keystrokes to the temporary log
+    tempLog: function(keyStroke, log, modifiers) {
+        // if the key has already been typed exists in this interval's log
+        if (log.hasOwnProperty(keyStroke)) {
+            // increment its count
+            log[keyStroke][0]++;
+        } else {
+            // make the key in this interval's log and set its count to 1
+            log[keyStroke] = [1];
+        }
         // if there are modifiers, add an array of modifiers to the key object
         if (modifiers !== undefined && modifiers.length !== 0) {
-            key.modifiers = modifiers;
+            log[keyStroke][1] = modifiers;
         }
-        // make the key object the value of a key-value pair whose key is the current datetime
-        fullLog[Date.now()] = key;
+    },
+
+    // writes a keystroke to the log file as a value whose key is the current datetime.
+    // if the key was modified by any modifier keys, those are written with it.
+    writeLog: function(intervalLog, logfile, interval) {
+
+        var fullLog = require(logfile);
+        var time = new Date().getTime();
+        time -= interval;
+        fullLog[time] = intervalLog;
+
         // write the updated log to logfile
         jsonfile.writeFile(logfile, fullLog, {spaces: 4}, function(err) {
             console.error(err);
         });
+        intervalLog = {};
     }
 
 }

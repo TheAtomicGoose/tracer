@@ -17,7 +17,12 @@ fs.stat(logfile, function(err, stat) {
 // spawn the xinput process
 xinput = spawn('xinput', ['test', keyboardId]);
 
+var intervalLog = {};
 var modifiers = [];
+
+// start a new time interval object and write the old one
+// to the keylog as frequently as specified in the config
+setInterval(function() { helpers.writeLog(intervalLog, logfile, config.interval); }, config.interval);
 
 // on stdout
 xinput.stdout.on('data', (data) => {
@@ -28,10 +33,10 @@ xinput.stdout.on('data', (data) => {
         if (modCheck) {  // if this key is a modifier
             // add it to the modifiers array and write it to the keylog
             modifiers.push(modCheck);
-            helpers.writeLog(keyNum, logfile);
+            helpers.tempLog(keyNum, intervalLog);
         } else {
             // add the non-modifier key to the keylog with its modifiers
-            helpers.writeLog(keyNum, logfile, modifiers);
+            helpers.tempLog(keyNum, intervalLog, modifiers);
             modifiers = [];
         }
     }
