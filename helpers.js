@@ -33,34 +33,45 @@ module.exports = {
 
     // writes keystrokes to the temporary log
     tempLog: function(keyStroke, log, modifiers) {
-        // if the key has already been typed exists in this interval's log
-        if (log.hasOwnProperty(keyStroke)) {
-            // increment its count
-            log[keyStroke][0]++;
-        } else {
-            // make the key in this interval's log and set its count to 1
-            log[keyStroke] = [1];
+        // give the keystroke an array if it doesn't have one
+        if (!log.hasOwnProperty(keyStroke)) {
+            log[keyStroke] = [0];
         }
-        // if there are modifiers, add an array of modifiers to the key object
-        if (modifiers !== undefined && modifiers.length !== 0) {
-            log[keyStroke][1] = modifiers;
+
+        // if there are modifiers, the key's count isn't incremented, but the
+        // count of that particular set of modifiers is.
+        if (modifiers !== undefined && modifiers.length > 0) {
+            modifiers = modifiers.sort();
+            var index = log[keyStroke].indexOf(modifiers);
+            // if this particular set of modifiers hasn't been used yet on this key
+            if (index === -1) {
+                // add the array of modifiers to log[keyStroke] and the number of times
+                // that it's been used (1 at this point) as the next index after
+                log[keyStroke].push(modifiers, 1);
+            } else {
+                // increment the count of how many times this combination of modifiers
+                // has been used
+                log[keyStroke][index + 1]++;
+            }
+        } else {  // if there are no modifiers
+            log[keyStroke][0]++;
         }
     },
 
-    // writes a keystroke to the log file as a value whose key is the current datetime.
-    // if the key was modified by any modifier keys, those are written with it.
+    // writes a group of keystrokes to the log file as a value whose key is the current datetime.
     writeLog: function(intervalLog, logfile, interval) {
+        if (Object.keys(intervalLog).length !== 0) {
+            var fullLog = require(logfile);
+            // make the time at which this log was started the key for the interval log in the logfile
+            var time = new Date().getTime();
+            time -= interval;
+            fullLog[time] = intervalLog;
 
-        var fullLog = require(logfile);
-        var time = new Date().getTime();
-        time -= interval;
-        fullLog[time] = intervalLog;
-
-        // write the updated log to logfile
-        jsonfile.writeFile(logfile, fullLog, {spaces: 4}, function(err) {
-            console.error(err);
-        });
-        intervalLog = {};
+            // write the updated log to logfile
+            jsonfile.writeFile(logfile, fullLog, {spaces: 3}, function(err) {
+                console.error(err);
+            });
+        }
     }
 
 }

@@ -44,7 +44,7 @@ function processKeymap(originalMap) {
     });
 
     var keymap = {};    // the json keymap object
-    var mods = {"control": [], "shift": [], "alt": [], "super": []};  // ctrl, shift, alt, super
+    var mods = {'alt': [], 'ctrl': [], 'shft': [],  'spr': []};  // ctrl, shift, alt, super
 
     xmodmap.forEach(function(element, index, array) {
         
@@ -105,15 +105,21 @@ function processKeymap(originalMap) {
  */
 function modifierAdd(key, keyNum, modObject) {
     
-    // gets all the possible modifiers
+    // get all the possible modifiers
     modifiers = Object.keys(modObject);
-    // check if key is any of those modifiers
-    modifiers.forEach(function(element, index, array) {
-        // if so, add the keyNum of the modifier to that modifier's
-        // array in the modifier object
-        if (key.toLowerCase().includes(element)) {
-            modObject[element].push(keyNum);
-            return;
-        }
-    });
+
+    // add the keyNum of the modifier to that modifier's
+    // array in the modifier object. the reason for the individual
+    // if statements is so that keys can be abbreviated; e.g. control
+    // gets put into 'ctrl' in the modifier object
+    if(key.toLowerCase().includes('alt')) {
+        modObject['alt'].push(keyNum);
+    } else if(key.toLowerCase().includes('control')) {
+        modObject['ctrl'].push(keyNum);
+    } else if (key.toLowerCase().includes('shift')) {
+        modObject['shft'].push(keyNum);
+    } else if (key.toLowerCase().includes('super')) {
+        modObject['spr'].push(keyNum);
+    }
+    return;
 }
