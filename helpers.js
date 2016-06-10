@@ -4,8 +4,11 @@ var util = require('util');
 
 module.exports = {
 
-    // checks if the current key is a modifier, and if it is,
-    // returns which modifier it is
+    /*
+     * checkModifier() checks if keyStroke is a modifier (alt, ctrl, shft, spr)
+     * and if it is, returns which modifier key it is. If the key is not a modifier,
+     * it returns false.
+     */
     checkModifier: function(keyStroke) {
         // get modifier keymap numbers
         var keymap = require('./keymap');
@@ -22,7 +25,10 @@ module.exports = {
         return false;
     },
 
-    // creates a skeleton JSON file with only {} in it
+    /*
+     * jsonSkeleton() creates a file with a usable JSON skeleton in
+     * it, e.g. {}.
+     */
     jsonSkeleton: function(file) {
         var opened = fs.openSync(file, 'w');
         jsonfile.writeFile(file, {}, {spaces: 3}, function(err) {
@@ -31,7 +37,10 @@ module.exports = {
         fs.closeSync(opened);
     },
 
-    // writes keystrokes to the temporary log
+    /*
+     * tempLog() writes keyStroke to log, and also writes modifiers
+     * to log with keyStroke if they exist.
+     */
     tempLog: function(keyStroke, log, modifiers) {
         // give the keystroke an array if it doesn't have one
         if (!log.hasOwnProperty(keyStroke)) {
@@ -58,7 +67,10 @@ module.exports = {
         }
     },
 
-    // writes a group of keystrokes to the log file as a value whose key is the current datetime.
+    /*
+     * writeLog() writes a temporary log (in the form of a JSON object) to the
+     * permanent log, passed in as logfile.
+     */
     writeLog: function(intervalLog, logfile, interval) {
         if (Object.keys(intervalLog).length !== 0) {
             var fullLog = require(logfile);
@@ -73,5 +85,4 @@ module.exports = {
             });
         }
     }
-
 }
